@@ -1,5 +1,6 @@
 package com.senate.stock.discord.bot.config
 
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.PropertySource
 
@@ -9,9 +10,13 @@ class BotConfig {
 
     val startTime: Long = System.currentTimeMillis()
 
+    @Value( "\${botToken}" )
+    lateinit var botToken: String
+
     /**
      * Comma separated array of user tags.
      */
+    @Value( "\${userTags}" )
     lateinit var userTags: Array<String>
 
 }

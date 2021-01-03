@@ -24,6 +24,7 @@ dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-reflect")
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 	implementation("net.dv8tion:JDA:4.2.0_225")
+	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.2")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
