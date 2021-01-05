@@ -13,10 +13,13 @@ class BotConfig {
     @Value( "\${botToken}" )
     lateinit var botToken: String
 
-    /**
-     * Comma separated array of user tags.
-     */
-    @Value( "\${userTags}" )
-    lateinit var userTags: Array<String>
+    @Value("\${dataDownloadHost}")
+    lateinit var dataDownloadEndpoint: String
+
+    @Value("\${postInChannel}")
+    lateinit var postInChannel: String
+
+    @Value("\${fileDirectoryHost}")
+    lateinit var fileDirectoryHost: String
 
 }

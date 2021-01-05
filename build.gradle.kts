@@ -25,6 +25,8 @@ dependencies {
 	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
 	implementation("net.dv8tion:JDA:4.2.0_225")
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.2")
+	implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.12.0")
+	implementation("org.apache.commons:commons-lang3:3.11")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
