@@ -27,6 +27,8 @@ dependencies {
 	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.4.2")
 	implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.12.0")
 	implementation("org.apache.commons:commons-lang3:3.11")
+	implementation("io.arrow-kt:arrow-core:0.11.0")
+	testImplementation("io.mockk:mockk:1.10.4")
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
