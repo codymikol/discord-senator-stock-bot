@@ -1,6 +1,5 @@
 package com.senate.stock.discord.bot.poller
 
-import com.senate.stock.discord.bot.channels.IUpdateTextChannel
 import com.senate.stock.discord.bot.data.Senators
 import org.springframework.stereotype.Component
 

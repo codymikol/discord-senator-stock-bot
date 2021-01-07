@@ -1,6 +1,6 @@
 package com.senate.stock.discord.bot
 
-import com.senate.stock.discord.bot.poller.DirectoryContentDownloader
+import com.senate.stock.discord.bot.poller.StockDownloader
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -14,7 +14,7 @@ class BotApplicationTests {
 
 	@Test
 	fun contextLoads() {
-		context.getBean(DirectoryContentDownloader::class.java).getFileContents()
+		context.getBean(StockDownloader::class.java).getFileDirectoryContents()
 		println("")
 	}
 

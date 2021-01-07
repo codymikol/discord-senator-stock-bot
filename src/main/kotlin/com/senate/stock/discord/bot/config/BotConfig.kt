@@ -22,4 +22,6 @@ class BotConfig {
     @Value("\${fileDirectoryHost}")
     lateinit var fileDirectoryHost: String
 
+    @Value("\${lastRecievedOn}")
+    lateinit var lastRecievedOn: String
 }

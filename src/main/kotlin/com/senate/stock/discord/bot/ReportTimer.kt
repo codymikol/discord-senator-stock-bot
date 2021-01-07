@@ -1,12 +1,12 @@
 package com.senate.stock.discord.bot
 
 import com.senate.stock.discord.bot.channels.IUpdateChannelProvider
-import com.senate.stock.discord.bot.channels.UpdateChannel
 import com.senate.stock.discord.bot.poller.ReportFormatter
 import com.senate.stock.discord.bot.poller.StockDownloader
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import org.springframework.stereotype.Component
+import java.time.LocalDate
 import java.util.*
 import kotlin.concurrent.scheduleAtFixedRate
 
@@ -19,14 +19,14 @@ class ReportTimer(
         val reportFormatter: ReportFormatter,
 ) {
 
-//    val tableRenderer = TableBuilder()
-
     val timer: TimerTask = Timer("REPORT_TIMER").scheduleAtFixedRate(0L, 10 * 1000L) {
 
-        val tableString = reportFormatter.sendTransactionsTable(stockDownloader.getUpdate(""))
-        println("Running timed task...")
-        channelProvider.getUpdateChannel(UpdateChannel.daily_update)
-                .sendAll(tableString)
+        stockDownloader.getUpdate(LocalDate.parse("2020-12-31"))
+                .map { senatorsUpdate ->
+                    val tableString = reportFormatter.sendTransactionsTable(senatorsUpdate)
+                    println("Running timed task...")
+                    channelProvider.getUpdateChannel().sendAll(tableString)
+                }
         runBlocking { delay(60 * 1000) }
     }
 
