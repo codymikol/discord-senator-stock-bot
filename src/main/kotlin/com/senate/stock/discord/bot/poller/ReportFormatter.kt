@@ -3,17 +3,20 @@ package com.senate.stock.discord.bot.poller
 import com.senate.stock.discord.bot.data.Senators
 import org.springframework.stereotype.Component
 
+val URL_PATTERN: Regex = "[(http(s)?):\\/\\/(www\\.)?a-zA-Z0-9@:%._\\+~#=]{2,256}\\.[a-z]{2,6}\\b([-a-zA-Z0-9@:%_\\+.~#?&//=]*)".toRegex()
+
 @Component
 class ReportFormatter {
 
     fun getTransactionsTableString(senators: List<Senators>): String = StringBuilder("").apply {
-        senators.forEach { senator ->
-            this.append("| Senator | ${senator.office ?: (senator.first_name + " " + senator.last_name)} |\n")
-            this.append("|  Ticker   | Action | Price Range | Date |\n")
-            senator.transactions.forEach { transaction ->
-                this.append("|   ${getRawTicker(transaction.ticker ?: "--")}   | ${getBuyOrSell(transaction.type ?: "")} | ${transaction.amount} | ${transaction.transaction_date} |\n")
-            }
-        }
+        senators.filter { it.transactions.isNotEmpty() }
+                .forEach { senator ->
+                    this.append("| Senator | ${(senator.first_name + " " + senator.last_name)} |\n")
+                    this.append("|  Ticker   | Action | Price Range | Date |\n")
+                    senator.transactions.forEach { transaction ->
+                        this.append("|   [${getRawTicker(transaction.ticker ?: "--")}]${transaction.ticker?.let { "(${getAnchoredHyperLinkOrNull(it)})" }}   | ${getBuyOrSell(transaction.type ?: "")} | ${transaction.amount} | ${transaction.transaction_date} |\n")
+                    }
+                }
     }.toString()
 
     fun getRawTicker(tickerLink: String): String = (tickerLink.indexOf(">") to tickerLink.indexOf("</a>"))
@@ -30,4 +33,6 @@ class ReportFormatter {
         true -> "\uD83D\uDE80 Buy"
         else -> "\uD83D\uDCB0 Sell"
     }
+
+    fun getAnchoredHyperLinkOrNull(text: String) = URL_PATTERN.findAll(text).map { it.value }.firstOrNull()
 }

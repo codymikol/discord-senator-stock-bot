@@ -5,12 +5,15 @@ import arrow.core.flatMap
 import com.senate.stock.discord.bot.AppError
 import com.senate.stock.discord.bot.poller.ReportFormatter
 import com.senate.stock.discord.bot.poller.StockDownloader
+import net.dv8tion.jda.api.entities.EmbedType
 import net.dv8tion.jda.api.entities.Message
+import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.entities.TextChannel
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import org.springframework.stereotype.Component
 import java.time.LocalDate
+import java.time.OffsetDateTime
 
 @Component
 class DateRequestListener(
@@ -26,8 +29,13 @@ class DateRequestListener(
                     .fold({ it.message }, { it })
                     .chunked(2000)
                     .forEach { messageChunk ->
-                        event.channel.sendMessage(messageChunk).queue()
+                        // Send message in requires 2000 size chunks.
+//                        event.channel.sendMessage(messageChunk).queue()
+                        event.channel.sendMessage(MessageEmbed(null, "Daily Report", messageChunk, EmbedType.RICH, OffsetDateTime.now(),
+                                1, null, null, null, null, null, null, listOf())).queue()
                     }
+
+//            event.channel.sendMessage("Here is a link! [country codes](https://countrycode.org/)").queue()
         }
         super.onGuildMessageReceived(event)
     }

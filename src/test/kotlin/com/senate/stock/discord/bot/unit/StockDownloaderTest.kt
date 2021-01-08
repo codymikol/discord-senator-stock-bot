@@ -28,8 +28,8 @@ class StockDownloaderTest {
         testStockDownloader = StockDownloader(mockBotConfig,
                 ObjectMapper().apply { registerModule(KotlinModule()) },
                 mockAppDateProvider,
-                XmlMapper().apply { registerModule(KotlinModule()) },
-                mockOkHttpClient
+                mockOkHttpClient,
+                XmlMapper().apply { registerModule(KotlinModule()) }
         )
     }
 
