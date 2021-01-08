@@ -23,19 +23,21 @@ class DateRequestListener(
 
     override fun onGuildMessageReceived(event: GuildMessageReceivedEvent) {
         if (!event.author.isBot && event.message.mentionedMembers.any { event.jda.selfUser.asTag == it.user.asTag }) {
-            parseDateFromMessageOrError(event.message)
+            event.channel.sendMessage(parseDateFromMessageOrError(event.message)
                     .flatMap { parsedDate -> stockDownloader.getUpdate(parsedDate) }
-                    .map { senatorData -> reportFormatter.getTransactionsTableString(senatorData) }
-                    .fold({ it.message }, { it })
-                    .chunked(2000)
-                    .forEach { messageChunk ->
-                        // Send message in requires 2000 size chunks.
-//                        event.channel.sendMessage(messageChunk).queue()
-                        event.channel.sendMessage(MessageEmbed(null, "Daily Report", messageChunk, EmbedType.RICH, OffsetDateTime.now(),
-                                1, null, null, null, null, null, null, listOf())).queue()
+                    .map { senatorData -> reportFormatter.getTransactionsTableFields(senatorData) }
+                    .mapLeft {
+                        MessageEmbed(null, "Daily Report Error", it.message, EmbedType.RICH, OffsetDateTime.now(),
+                                1, null, null, null, null, null, null, listOf())
                     }
+                    .map {
+                        MessageEmbed(null, "Daily Report", "", EmbedType.RICH, OffsetDateTime.now(),
+                                1, null, null, null, null, null, null, it)
 
-//            event.channel.sendMessage("Here is a link! [country codes](https://countrycode.org/)").queue()
+                    }
+                    // Fold into either Message Embed Error, or Daily Report.
+                    .fold({ err -> err }, { msg -> msg }))
+                    .queue()
         }
         super.onGuildMessageReceived(event)
     }
