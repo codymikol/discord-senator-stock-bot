@@ -4,6 +4,7 @@ import arrow.core.Either
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
+import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.senate.stock.discord.bot.AppError
 import com.senate.stock.discord.bot.config.BotConfig
 import com.senate.stock.discord.bot.data.Contents
@@ -12,6 +13,7 @@ import com.senate.stock.discord.bot.date.AppDateProvider
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -23,8 +25,11 @@ class StockDownloader(
         val botConfig: BotConfig,
         val objectMapper: ObjectMapper,
         val appDateProvider: AppDateProvider,
-        val xmlMapper: XmlMapper,
-        val okHttpClient: OkHttpClient) {
+        val okHttpClient: OkHttpClient,
+        val xmlMapper: XmlMapper = XmlMapper().apply {
+            registerModule(KotlinModule())
+        }
+) {
 
 
     fun getFileDirectoryContents(): List<Contents> = xmlMapper.readValue(okHttpClient.newCall(Request.Builder()

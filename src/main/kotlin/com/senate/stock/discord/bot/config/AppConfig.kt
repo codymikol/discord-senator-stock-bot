@@ -10,10 +10,5 @@ import org.springframework.context.annotation.Configuration
 class AppConfig {
 
     @Bean
-    fun xmlMapper(): XmlMapper = XmlMapper().apply {
-        registerModule(KotlinModule())
-    }
-
-    @Bean
     fun okHttpClient(): OkHttpClient = OkHttpClient()
 }

@@ -19,15 +19,15 @@ class ReportTimer(
         val reportFormatter: ReportFormatter,
 ) {
 
-    val timer: TimerTask = Timer("REPORT_TIMER").scheduleAtFixedRate(0L, 10 * 1000L) {
-
-        stockDownloader.getUpdate(LocalDate.parse("2020-12-31"))
-                .map { senatorsUpdate ->
-                    val tableString = reportFormatter.sendTransactionsTable(senatorsUpdate)
-                    println("Running timed task...")
-                    channelProvider.getUpdateChannel().sendAll(tableString)
-                }
-        runBlocking { delay(60 * 1000) }
-    }
+//    val timer: TimerTask = Timer("REPORT_TIMER").scheduleAtFixedRate(0L, 10 * 1000L) {
+//
+//        stockDownloader.getUpdate(LocalDate.parse("2020-12-31"))
+//                .map { senatorsUpdate ->
+//                    val tableString = reportFormatter.getTransactionsTableString(senatorsUpdate)
+//                    println("Running timed task...")
+//                    channelProvider.getUpdateChannel().sendAll(tableString)
+//                }
+//        runBlocking { delay(60 * 1000) }
+//    }
 
 }
