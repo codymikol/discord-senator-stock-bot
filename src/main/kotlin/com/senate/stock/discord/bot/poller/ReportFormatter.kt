@@ -9,9 +9,9 @@ class ReportFormatter {
     fun getTransactionsTableString(senators: List<Senators>): String = StringBuilder("").apply {
         senators.forEach { senator ->
             this.append("| Senator | ${senator.office ?: (senator.first_name + " " + senator.last_name)} |\n")
-            this.append("| Ticker  | Action | Price Range | Date |\n")
+            this.append("|  Ticker   | Action | Price Range | Date |\n")
             senator.transactions.forEach { transaction ->
-                this.append("| ${getRawTicker(transaction.ticker ?: "--")} | ${getBuyOrSell(transaction.type ?: "")} | ${transaction.amount} | ${transaction.transaction_date} |\n")
+                this.append("|   ${getRawTicker(transaction.ticker ?: "--")}   | ${getBuyOrSell(transaction.type ?: "")} | ${transaction.amount} | ${transaction.transaction_date} |\n")
             }
         }
     }.toString()
@@ -27,7 +27,7 @@ class ReportFormatter {
     fun isPurchase(type: String): Boolean = type.contains("Purchase")
 
     fun getBuyOrSell(type: String): String = when (isPurchase(type)) {
-        true -> "Buy"
-        else -> "Sell"
+        true -> "\uD83D\uDE80 Buy"
+        else -> "\uD83D\uDCB0 Sell"
     }
 }
