@@ -9,6 +9,7 @@ val URL_PATTERN: Regex = "[(http(s)?):\\/\\/(www\\.)?a-zA-Z0-9@:%._\\+~#=]{2,256
 @Component
 class ReportFormatter {
 
+    // TODO Deprecated!!!
     fun getTransactionsTableString(senators: List<Senators>): String = StringBuilder("").apply {
         senators.filter { it.transactions.isNotEmpty() }
                 .forEach { senator ->
@@ -20,6 +21,9 @@ class ReportFormatter {
                 }
     }.toString()
 
+    /**
+     * Todo add hard truncation of Field value message limit.
+     */
     fun getTransactionsTableFields(senators: List<Senators>): List<MessageEmbed.Field> = ArrayList<MessageEmbed.Field>().apply {
         senators.filter { it.transactions.isNotEmpty() }
                 .forEach { senator ->
