@@ -6,4 +6,5 @@ sealed class AppError(val message: String) {
 
     class InvalidDateFormat(date: String, userId: Long): AppError("Sorry <@!$userId> I couldn't parse the date you provided '$date' make sure it is in the format YYYY-MM-DD")
 
+    class NetworkFailure(): AppError("Failed to reach out to senate watcher servers. please check logs and try again later..")
 }

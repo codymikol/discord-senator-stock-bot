@@ -1,6 +1,7 @@
 package com.senate.stock.discord.bot.poller
 
 import arrow.core.Either
+import arrow.core.flatMap
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
@@ -10,6 +11,7 @@ import com.senate.stock.discord.bot.config.BotConfig
 import com.senate.stock.discord.bot.data.Contents
 import com.senate.stock.discord.bot.data.Senators
 import com.senate.stock.discord.bot.date.AppDateProvider
+import okhttp3.Call
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
@@ -41,6 +43,7 @@ class StockDownloader(
     }.toSet()
 
 
+    // TODO safer regex based way of parsing local date from file string.
     fun parseLocalDateFromString(fileName: String): LocalDate? = fileName.substring(fileName.length - 15, fileName.length - 5)
             .let { substr -> LocalDate.parse(substr, DATE_FORMAT) }
 
@@ -50,16 +53,28 @@ class StockDownloader(
      * todo maybe if the site owner refactors the date format we make a more robust way of parsing
      *
      */
-    fun getUpdate(forDate: LocalDate): Either<AppError, List<Senators>> = okHttpClient.newCall(Request.Builder()
-            .url("${botConfig.dataDownloadEndpoint}/transaction_report_for_${forDate.format(DATE_FORMAT)}.json")
-            .build()).execute().let { response ->
-        when (response.code() == 200) {
-            true -> Either.Right(deserializeResponseBody(response))
-            else -> Either.Left(AppError.NoReportForDate(forDate.format(DATE_FORMAT)))
-        }
-    }
+    fun getUpdate(forDate: LocalDate): Either<AppError, List<Senators>> =
+            okHttpClient.newCall(Request.Builder()
+                    .url("${botConfig.dataDownloadEndpoint}/transaction_report_for_${forDate.format(DATE_FORMAT)}.json")
+                    .build())
+                    .executeOrNetworkError()
+                    .flatMap { response ->
+                        when (response.code() == 200) {
+                            true -> Either.Right(deserializeResponseBody(response))
+                            else -> Either.Left(AppError.NoReportForDate(forDate.format(DATE_FORMAT)))
+                        }
+                    }
+
 
     private fun deserializeResponseBody(response: Response): List<Senators> = objectMapper.readValue(
             response.body()?.let { String(it.bytes()) },
             object : TypeReference<List<Senators>>() {})
+}
+
+fun Call.executeOrNetworkError(): Either<AppError, Response> = try {
+    Either.Right(this.execute())
+} catch (e: Exception) {
+    println("Network Exception downloading report..")
+    e.printStackTrace()
+    Either.Left(AppError.NetworkFailure())
 }
