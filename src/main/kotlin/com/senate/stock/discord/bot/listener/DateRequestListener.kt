@@ -30,9 +30,9 @@ class DateRequestListener(
                         MessageEmbed(null, "Daily Report Error", it.message, EmbedType.RICH, OffsetDateTime.now(),
                                 1, null, null, null, null, null, null, listOf())
                     }
-                    .map {
-                        MessageEmbed(null, "Daily Report", "", EmbedType.RICH, OffsetDateTime.now(),
-                                1, null, null, null, null, null, null, it)
+                    .map { messages ->
+                        MessageEmbed(null, "Daily Report for ${parseDateFromMessageOrError(event.message).fold({ it.message }, { it.toString() })}", "", EmbedType.RICH, OffsetDateTime.now(),
+                                1, null, null, null, null, null, null, messages)
 
                     }
                     // Fold into either Message Embed Error, or Daily Report.

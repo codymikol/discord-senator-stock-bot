@@ -30,11 +30,11 @@ class ReportTimer(
     }
 
     fun doNextUpdate(): Either<Unit, Unit> = stockDownloader.getNextUpdate()
-            .map { senatorData -> reportFormatter.getTransactionsTableFields(senatorData) }
-            .map {
+            .map { senatorData ->
                 channelProvider.getUpdateChannel()
-                        .sendAll(MessageEmbed(null, "Daily Report", "", EmbedType.RICH, OffsetDateTime.now(),
-                                1, null, null, null, null, null, null, it))
+                        .sendAll(MessageEmbed(null, "Daily Report for ${senatorData.first}", "", EmbedType.RICH, OffsetDateTime.now(),
+                                1, null, null, null, null, null, null,
+                                reportFormatter.getTransactionsTableFields(senatorData.second)))
             }
             .mapLeft {
                 println("Error downloading report: ${it.message}")

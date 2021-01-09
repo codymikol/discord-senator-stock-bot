@@ -83,10 +83,10 @@ class StockDownloader(
     /**
      * Get's next date provided from File Directory XML File. If available, downloads report for that date.
      */
-    fun getNextUpdate(): Either<AppError, List<Senators>> = getNextDate()
+    fun getNextUpdate(): Either<AppError, Pair<LocalDate, List<Senators>>> = getNextDate()
             .flatMap { nextDate ->
                 getUpdate(nextDate).map { senatorData ->
-                    senatorData.apply { appDateProvider.setLastReportedDate(nextDate) }
+                    Pair(nextDate, senatorData.apply { appDateProvider.setLastReportedDate(nextDate) })
                 }
             }
 
