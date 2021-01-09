@@ -2,6 +2,7 @@ package com.senate.stock.discord.bot.unit
 
 import com.senate.stock.discord.bot.config.BotConfig
 import com.senate.stock.discord.bot.date.AppDateProvider
+import com.senate.stock.discord.bot.date.isTradingDay
 import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.BeforeEach
@@ -48,4 +49,23 @@ class AppDateProviderTest {
         assert(appDateProvider.getLastReportedDate() == date2) { "Local Date was not updated to 2021-10-03" }
     }
 
+
+    @Test
+    fun `test get now date expecting Local Date returned`() {
+        appDateProvider.getNowDate()
+    }
+
+    @Test
+    fun `test is trading day passing sunday expecting false`() {
+        assert(!LocalDate.parse("2021-01-10").isTradingDay()) {
+            "2021-01-10 should not be a trading day"
+        }
+    }
+
+    @Test
+    fun `test is trading day passing monday expecting true`() {
+        assert(LocalDate.parse("2021-01-11").isTradingDay()) {
+            "2021-01-11 should be a trading day"
+        }
+    }
 }
