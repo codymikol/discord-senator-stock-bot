@@ -13,12 +13,11 @@ val FILE_DATE_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-d
 
 @Component
 class AppDateProvider(
-        val botConfig: BotConfig,
-        val dateStoreResource: ClassPathResource = ClassPathResource("datestore.txt")) {
+        val botConfig: BotConfig) {
 
-    fun getLastReportedDate(): LocalDate = LocalDate.parse(dateStoreResource.file.readText())
+    fun getLastReportedDate(): LocalDate = LocalDate.parse(botConfig.dateStore.file.readText())
 
-    fun setLastReportedDate(localDate: LocalDate) = dateStoreResource.file.writeText(localDate.format(FILE_DATE_FORMAT))
+    fun setLastReportedDate(localDate: LocalDate) = botConfig.dateStore.file.writeText(localDate.format(FILE_DATE_FORMAT))
 
     fun getNowDate(): LocalDate = getNow().toLocalDate()
 

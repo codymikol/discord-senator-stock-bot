@@ -2,6 +2,7 @@ package com.senate.stock.discord.bot.unit
 
 import com.senate.stock.discord.bot.config.BotConfig
 import com.senate.stock.discord.bot.date.AppDateProvider
+import io.mockk.every
 import io.mockk.mockk
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -18,6 +19,7 @@ class AppDateProviderTest {
 
     @BeforeEach
     fun setUp() {
+        every { mockBotConfig.dateStore } returns ClassPathResource("datestore.txt")
         appDateProvider = AppDateProvider(mockBotConfig)
     }
 
