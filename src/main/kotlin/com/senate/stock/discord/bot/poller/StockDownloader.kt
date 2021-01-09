@@ -2,7 +2,9 @@ package com.senate.stock.discord.bot.poller
 
 import arrow.core.Either
 import arrow.core.flatMap
+import arrow.core.rightIfNotNull
 import com.fasterxml.jackson.core.type.TypeReference
+import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
@@ -15,12 +17,13 @@ import okhttp3.Call
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
-import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.stereotype.Component
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 val DATE_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern("MM_dd_yyyy")
+
+val DATE_PATTERN: Regex = """\d{2}_\d{2}_\d{4}""".toRegex()
 
 @Component
 class StockDownloader(
@@ -30,22 +33,34 @@ class StockDownloader(
         val okHttpClient: OkHttpClient,
         val xmlMapper: XmlMapper = XmlMapper().apply {
             registerModule(KotlinModule())
+            configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false)
         }
 ) {
 
+    fun getFileDirectoryContents(): Either<AppError, List<Contents>> = okHttpClient.newCall(Request.Builder()
+            .url(botConfig.fileDirectoryHost)
+            .build())
+            .executeOrNetworkError()
+            .map { response ->
+                xmlMapper.readValue(response.body()?.let { String(it.bytes()) },
+                        object : TypeReference<List<Contents>>() {})
+            }
 
-    fun getFileDirectoryContents(): List<Contents> = xmlMapper.readValue(okHttpClient.newCall(Request.Builder()
-            .url("${botConfig.fileDirectoryHost}/filemap.xml")
-            .build()).execute().body()?.let { String(it.bytes()) }, object : TypeReference<List<Contents>>() {})
-
-    fun normalizeContents(contents: List<Contents>): Set<LocalDate> = contents.mapNotNull { content ->
-        content.Key?.let { parseLocalDateFromString(it) }
-    }.toSet()
+    fun parseDates(contents: List<Contents>): Set<LocalDate> = contents
+            .mapNotNull { content -> content.Key?.let { parseLocalDateFromString(it) } }.toSet()
 
 
-    // TODO safer regex based way of parsing local date from file string.
-    fun parseLocalDateFromString(fileName: String): LocalDate? = fileName.substring(fileName.length - 15, fileName.length - 5)
-            .let { substr -> LocalDate.parse(substr, DATE_FORMAT) }
+    /**
+     * Gets next report available for download.
+     */
+    fun getNextDate(): Either<AppError, LocalDate> = getFileDirectoryContents()
+            .map { contents -> parseDates(contents).filter { it.isAfter(appDateProvider.getLastReportedDate()) } }
+            .map { dates -> dates.sortedByDescending { it } }
+            .flatMap { dates -> dates.firstOrNull().rightIfNotNull { AppError.NoReportForDate("") } }
+
+    fun parseLocalDateFromString(fileName: String): LocalDate? = DATE_PATTERN.findAll(fileName)
+            .map { LocalDate.parse(it.value, DATE_FORMAT) }
+            .firstOrNull()
 
 
     /**
@@ -65,10 +80,28 @@ class StockDownloader(
                         }
                     }
 
+    /**
+     * Get's next date provided from File Directory XML File. If available, downloads report for that date.
+     */
+    fun getNextUpdate(): Either<AppError, List<Senators>> = getNextDate()
+            .flatMap { nextDate ->
+                getUpdate(nextDate).map { senatorData ->
+                    senatorData.apply { appDateProvider.setLastReportedDate(nextDate) }
+                }
+            }
 
     private fun deserializeResponseBody(response: Response): List<Senators> = objectMapper.readValue(
             response.body()?.let { String(it.bytes()) },
             object : TypeReference<List<Senators>>() {})
+
+    companion object {
+
+        fun parseLocalDateOrNull(str: String, formatter: DateTimeFormatter): LocalDate? = try {
+            LocalDate.parse(str, formatter)
+        } catch (e: Exception) {
+            null
+        }
+    }
 }
 
 fun Call.executeOrNetworkError(): Either<AppError, Response> = try {

@@ -11,6 +11,3 @@ class BotApplication
 fun main(args: Array<String>) {
     runApplication<BotApplication>(*args)
 }
-
-fun LocalDate.isTradingDay(): Boolean = this.dayOfWeek
-        .let { dow -> dow != DayOfWeek.SATURDAY && dow != DayOfWeek.SUNDAY }

@@ -5,9 +5,9 @@ import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Component
 import java.time.*
 import java.time.format.DateTimeFormatter
-import java.util.concurrent.atomic.AtomicReference
 
-val nyse_zone: ZoneId = ZoneId.of("America/New_York")
+// default all timezones to the NYSE exchange zone.
+val NYSE_ZONE: ZoneId = ZoneId.of("America/New_York")
 
 val FILE_DATE_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
 
@@ -22,6 +22,13 @@ class AppDateProvider(
 
     fun getNowDate(): LocalDate = getNow().toLocalDate()
 
-    fun getNow(): ZonedDateTime = LocalDateTime.now().atZone(nyse_zone.normalized())
+    private fun getNow(): ZonedDateTime = LocalDateTime.now().atZone(NYSE_ZONE.normalized())
 
+    fun isLastReportedDateToday(): Boolean = getNowDate() == getLastReportedDate()
 }
+
+/**
+ * Extension method for determining if the DayOfWeek between Mon-Fri
+ */
+fun LocalDate.isTradingDay(): Boolean = this.dayOfWeek
+        .let { dow -> dow != DayOfWeek.SATURDAY && dow != DayOfWeek.SUNDAY }

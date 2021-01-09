@@ -1,9 +1,12 @@
 package com.senate.stock.discord.bot.unit
 
+import com.fasterxml.jackson.core.type.TypeReference
+import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.dataformat.xml.XmlMapper
 import com.fasterxml.jackson.module.kotlin.KotlinModule
 import com.senate.stock.discord.bot.config.BotConfig
+import com.senate.stock.discord.bot.data.Contents
 import com.senate.stock.discord.bot.date.AppDateProvider
 import com.senate.stock.discord.bot.poller.StockDownloader
 import io.mockk.clearMocks
@@ -11,6 +14,7 @@ import io.mockk.mockk
 import okhttp3.OkHttpClient
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.springframework.core.io.ClassPathResource
 
 class StockDownloaderTest {
 
